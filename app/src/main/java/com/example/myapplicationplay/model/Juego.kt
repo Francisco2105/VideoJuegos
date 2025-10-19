@@ -5,9 +5,12 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "juegos")
 data class Juego(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
     val nombre: String,
-    val creador: String,
-    val genero: String,
-    val precio: Int
+    val descripcion: String,
+    val precio: Double,
+    val imagen: String = "",
+    val enCarrito: Boolean = false,
+    val cantidad: Int = 1
 )

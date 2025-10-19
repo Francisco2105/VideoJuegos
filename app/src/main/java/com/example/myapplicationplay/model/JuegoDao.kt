@@ -1,19 +1,28 @@
 package com.example.myapplicationplay.model
 
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface JuegoDao {
-    @Query("SELECT * FROM juegos ")
-    suspend fun getAll(): List<Juego>
+    @Query("SELECT * FROM juegos")
+    fun getAllJuegos(): Flow<List<Juego>>
 
-    @Insert
-    suspend fun insert(juego: Juego)
+    @Query("SELECT * FROM juegos WHERE enCarrito = 1")
+    fun getJuegosEnCarrito(): Flow<List<Juego>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertJuego(juego: Juego)
 
     @Update
-    suspend fun update(juego: Juego)
+    suspend fun updateJuego(juego: Juego)
 
-    @Delete
-    suspend fun delete(juego: Juego)
+    @Query("DELETE FROM juegos WHERE id = :id")
+    suspend fun deleteJuego(id: Long)
 
+    @Query("UPDATE juegos SET enCarrito = :enCarrito WHERE id = :id")
+    suspend fun actualizarEstadoCarrito(id: Long, enCarrito: Boolean)
+
+    @Query("UPDATE juegos SET cantidad = :cantidad WHERE id = :id")
+    suspend fun actualizarCantidad(id: Long, cantidad: Int)
 }

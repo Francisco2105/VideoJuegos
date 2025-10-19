@@ -4,48 +4,52 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplicationplay.model.Juego
 import com.example.myapplicationplay.repository.JuegoRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class JuegoViewModel(private val repository: JuegoRepository) : ViewModel() {
 
-    val nombre = MutableStateFlow("")
-    val creador = MutableStateFlow("")
-    val genero = MutableStateFlow("")
-    val precio = MutableStateFlow("")
+    val todosLosJuegos: Flow<List<Juego>> = repository.getAllJuegos()
+    val juegosEnCarrito: Flow<List<Juego>> = repository.getJuegosEnCarrito()
 
-    val juegos = MutableStateFlow<List<Juego>>(emptyList())
-    // ...
-
-    init {
-        cargarJuegos()
-    }
-
-    private fun cargarJuegos() {
+    fun agregarJuego(nombre: String, descripcion: String, precio: Double) {
         viewModelScope.launch {
-            juegos.value = repository.getAll()
+            val nuevoJuego = Juego(
+                nombre = nombre,
+                descripcion = descripcion,
+                precio = precio
+            )
+            repository.insertJuego(nuevoJuego)
         }
     }
 
-    fun agregarJuegos(juego: Juego) {
+    fun agregarAlCarrito(id: Long) {
         viewModelScope.launch {
-            repository.insert(juego)
-            cargarJuegos()
+            repository.agregarAlCarrito(id)
         }
     }
 
-    fun actualizarJuegos(juego: Juego) {
+    fun removerDelCarrito(id: Long) {
         viewModelScope.launch {
-            repository.update(juego)
-            cargarJuegos()
+            repository.removerDelCarrito(id)
         }
     }
 
-    fun eliminarJuegos(juego: Juego) {
+    fun actualizarCantidad(id: Long, cantidad: Int) {
         viewModelScope.launch {
-            repository.delete(juego)
-            cargarJuegos()
+            repository.actualizarCantidad(id, cantidad)
+        }
+    }
+
+    // Datos de ejemplo para inicializar
+    fun inicializarDatosEjemplo() {
+        viewModelScope.launch {
+            val juegosEjemplo = listOf(
+                Juego(nombre = "The Legend of Zelda", descripcion = "Aventura épica", precio = 59.99),
+                Juego(nombre = "Mario Kart", descripcion = "Carreras divertidas", precio = 49.99),
+                Juego(nombre = "Animal Crossing", descripcion = "Simulación de vida", precio = 54.99)
+            )
+            juegosEjemplo.forEach { repository.insertJuego(it) }
         }
     }
 }
